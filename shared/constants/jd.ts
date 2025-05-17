@@ -1,0 +1,24 @@
+export enum JDMATCH_STATUS {
+  PARSING = "PARSING",
+  EXTRACTING = "EXTRACTING",
+  GENERATING = "GENERATING",
+  MATCHED = "MATCHED",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+  QUEUED = "QUEUED",
+  PROCESSING = "PROCESSING",
+  CANCELED = "CANCELED",
+  TIMEOUT = "TIMEOUT",
+}
+export enum JDMATCH_STATUS_TEXT {
+  PARSING = "Parsing",
+  EXTRACTING = "Extracting",
+  GENERATING = "Generating",
+  MATCHED = "Matched",
+  COMPLETED = "Completed",
+  FAILED = "Failed",
+  QUEUED = "Queued",
+  PROCESSING = "Processing",
+  CANCELED = "Canceled",
+  TIMEOUT = "Timeout",
+}
