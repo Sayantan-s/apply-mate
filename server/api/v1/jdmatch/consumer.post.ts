@@ -25,19 +25,7 @@ export default defineEventHandler(async (event) => {
     candidateResumePath,
   });
 
-  const res = await supabase.from("jd_match_dtl").insert([
-    {
-      file_id: fileId,
-      jd,
-      ...data,
-    },
-  ]);
-
-  if (res.error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to insert data into Supabase",
-    });
+  await saveJDMatchInfo({ jd, file_id: fileId, ...data });
 
   await redisClient.set(redisKey, JDMATCH_STATUS.MATCHED);
 

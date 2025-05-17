@@ -2,6 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+  vite: {
+    server: {
+      allowedHosts: true,
+    },
+  },
   modules: [
     "@nuxt/content",
     "@nuxt/eslint",
@@ -10,7 +15,8 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/scripts",
     "@nuxt/test-utils",
-    "@nuxt/ui",
+    "@nuxtjs/tailwindcss",
+    "reka-ui/nuxt",
   ],
   nitro: {
     storage: {
@@ -34,10 +40,5 @@ export default defineNuxtConfig({
   },
   imports: {
     dirs: ["shared/**"],
-  },
-  vite: {
-    server: {
-      allowedHosts: true,
-    },
   },
 });

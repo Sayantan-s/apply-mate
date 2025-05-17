@@ -7,7 +7,7 @@ interface IGenerateCandidateScoreConfig {
   jd: string;
 }
 
-interface IGenerateCandidateScoreData {
+export interface IGenerateCandidateScoreData {
   score: number;
   missing_skills: string[];
   matching_skills: string[];
