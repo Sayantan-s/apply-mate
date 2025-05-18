@@ -3,7 +3,18 @@ interface JDMatchInfo {
   select: string;
 }
 
-export default async function (info: JDMatchInfo) {
+export interface JDMatchInfoResponse {
+  file_id: string;
+  jd: string;
+  score: number;
+  missing_skills: string[];
+  matching_skills: string[];
+  explanation: string;
+}
+
+export default async function (
+  info: JDMatchInfo
+): Promise<JDMatchInfoResponse> {
   let query = supabase.from("jd_match_dtl").select(info.select);
 
   if (info.fileId) query = query.eq("file_id", info.fileId);
@@ -22,5 +33,5 @@ export default async function (info: JDMatchInfo) {
       statusMessage: "No data found",
     });
 
-  return data;
+  return data as unknown as JDMatchInfoResponse;
 }

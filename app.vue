@@ -6,11 +6,11 @@ interface IJDInputForm {
   file: File | null;
 }
 
-interface IJDMatchResponse {
+interface IJDMatchStatusResponse {
   fileId: string;
 }
 
-const [jdMatch, { loading }] = useMutation<IJDMatchResponse>(
+const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
   "/api/v1/jdmatch",
   "POST"
 );
@@ -22,6 +22,7 @@ const form = reactive<IJDInputForm>({
 
 const fileId = ref<string | null>(null);
 const status = ref<JDMATCH_STATUS>(JDMATCH_STATUS.IDLE);
+const jdMatchInfo = ref<JDMatchInfoResponse | null>(null);
 
 const handleChange = (eve: Event) => {
   const target = eve.target as HTMLInputElement;
@@ -37,29 +38,45 @@ const handleSubmit = async () => {
   const data = await jdMatch(formData);
   if (!data) return;
   fileId.value = data.fileId;
-  await handleCheckStatus();
+  await checkJDMatchStatus();
+  await getJDMatchData();
 };
 
-const handleCheckStatus = async () => {
-  const interval = setInterval(async () => {
-    try {
-      const res = await $fetch(`/api/v1/jdmatch/status/${fileId.value}`, {
-        method: "GET",
-      });
+const checkJDMatchStatus = () =>
+  new Promise<void>((resolve, reject) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await $fetch(`/api/v1/jdmatch/status/${fileId.value}`, {
+          method: "GET",
+        });
 
-      if (res) {
-        status.value = res.status as JDMATCH_STATUS;
+        if (res && typeof res === "object" && res !== null && "status" in res) {
+          status.value = (res as { status: JDMATCH_STATUS }).status;
 
-        if (status.value === JDMATCH_STATUS.MATCHED) {
-          clearInterval(interval);
-          status.value = JDMATCH_STATUS.IDLE;
+          if (status.value === JDMATCH_STATUS.MATCHED) {
+            clearInterval(interval);
+            status.value = JDMATCH_STATUS.IDLE;
+            resolve();
+          }
         }
+      } catch (error) {
+        console.error("Error checking status:", error);
+        clearInterval(interval);
+        reject();
       }
-    } catch (error) {
-      console.error("Error checking status:", error);
-      clearInterval(interval); // optional: stop polling on error
-    }
-  }, 1000); // 1 second interv
+    }, 1500);
+  });
+
+const getJDMatchData = async () => {
+  try {
+    const res = await $fetch(`/api/v1/jdmatch/score/${fileId.value}`, {
+      method: "GET",
+    });
+
+    if (res && typeof res === "object" && res !== null) jdMatchInfo.value = res;
+  } catch (error) {
+    console.error("Error fetching JD match data:", error);
+  }
 };
 </script>
 
@@ -78,5 +95,9 @@ const handleCheckStatus = async () => {
   <div v-if="fileId">
     <p>File ID: {{ fileId }}</p>
     <p>Status: {{ status }}...</p>
+  </div>
+
+  <div v-if="jdMatchInfo">
+    {{ JSON.stringify(jdMatchInfo) }}
   </div>
 </template>
