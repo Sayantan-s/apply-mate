@@ -1,6 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const params = getQuery(event);
-  const { fileId } = params;
+  const fileId = getRouterParam(event, "fileId");
   const redisKey = `file:${fileId}`;
   const value = await redisClient.get(redisKey);
   if (!value)
