@@ -15,26 +15,29 @@ const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
   "POST"
 );
 
-const form = reactive<IJDInputForm>({
+const form = useState<IJDInputForm>("jdInputForm", () => ({
   jd: "",
   file: null,
-});
+}));
 
-const fileId = ref<string | null>(null);
-const status = ref<JDMATCH_STATUS>(JDMATCH_STATUS.IDLE);
-const jdMatchInfo = ref<JDMatchInfoResponse | null>(null);
+const fileId = useState<string | null>("fileId", () => null);
+const status = useState<JDMATCH_STATUS>("status", () => JDMATCH_STATUS.IDLE);
+const jdMatchInfo = useState<JDMatchInfoResponse | null>(
+  "jdMatchInfo",
+  () => null
+);
 
 const handleChange = (eve: Event) => {
   const target = eve.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    form.file = target.files[0];
+    form.value.file = target.files[0];
   }
 };
 
 const handleSubmit = async () => {
   const formData = new FormData();
-  formData.append("url", form.jd);
-  formData.append("file", form.file as Blob);
+  formData.append("url", form.value.jd);
+  formData.append("file", form.value.file as Blob);
   const data = await jdMatch(formData);
   if (!data) return;
   fileId.value = data.fileId;
@@ -81,14 +84,18 @@ const getJDMatchData = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
+  <form class="max-w-2xl mx-auto" @submit.prevent="handleSubmit">
     <textarea
       v-model.trim="form.jd"
       type="text"
-      placeholder="eg. Add jd link or jd text"
+      placeholder="eg. Paste your JD link or description here"
+      class="w-full h-32 border-2 border-gray-300 rounded-md p-2 mb-4"
     />
     <input type="file" @input="handleChange" />
-    <button class="bg-red-500 disabled:bg-red-400" :disabled="loading">
+    <button
+      class="bg-purple-500 px-4 py-3 border border-black disabled:bg-red-400"
+      :disabled="loading"
+    >
       {{ loading ? "Loading..." : "Proceed" }}
     </button>
   </form>

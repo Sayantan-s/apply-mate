@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { defineProps } from "vue";
+
 defineProps({
   variant: {
     type: String,
@@ -102,3 +104,9 @@ const getSizeClasses = (size: string) => {
   @apply absolute inset-0 pointer-events-none border-2 border-transparent;
 }
 </style>
+
+function defineProps(arg0: { variant: { type: StringConstructor; default:
+string; validator: (value: string) => boolean; }; size: { type:
+StringConstructor; default: string; validator: (value: string) => boolean; };
+disabled: { ...; }; type: { ...; }; }) { throw new Error("Function not
+implemented."); }
