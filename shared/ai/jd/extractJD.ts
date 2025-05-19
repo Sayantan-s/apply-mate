@@ -41,6 +41,8 @@ const EXTRACTION_SCHEMA = z.object({
   data: z.string(),
 });
 
+const TIMEOUT = 60000;
+
 export default async function (
   event: H3Event<EventHandlerRequest>,
   config: JDConfig
@@ -57,7 +59,7 @@ export default async function (
     model: LLM.model.gemini.FLASH_V25,
   });
 
-  await page.goto(url, { timeout: 60000 });
+  await page.goto(url, { timeout: TIMEOUT });
 
   await page.act({ action: ACTION_PROMPT });
 
@@ -68,7 +70,8 @@ export default async function (
 
   await close();
 
-  if (message === "ERROR") throw new Error(data);
+  if (message === "ERROR")
+    throw createError({ statusCode: 400, message: data });
 
   return data;
 }

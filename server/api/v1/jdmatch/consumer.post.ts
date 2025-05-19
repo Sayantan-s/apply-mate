@@ -1,3 +1,5 @@
+import analyseIfTextStructureIsAJD from "~/shared/ai/jd/analyseIfTextStructureIsAJD";
+import isJdLinkOrDescription from "~/shared/ai/jd/isJdLinkOrDescription";
 import { JDMATCH_STATUS } from "~/shared/constants/jd";
 
 export default defineEventHandler(async (event) => {
@@ -7,16 +9,23 @@ export default defineEventHandler(async (event) => {
 
   const storage = useStorage("uploads");
 
-  const { candidateResumePath, JD_URL, fileName } = info;
+  const { candidateResumePath, JD_URL: jd_data, fileName } = info;
 
   const [fileId] = fileName.split("-");
   const redisKey = `file:${fileId}`;
 
-  await redisClient.set(redisKey, JDMATCH_STATUS.EXTRACTING);
+  const isJDLink = isJdLinkOrDescription(jd_data);
 
-  const jd = await extractJD(event, {
-    url: JD_URL,
-  });
+  await redisClient.set(
+    redisKey,
+    isJDLink ? JDMATCH_STATUS.EXTRACTING : JDMATCH_STATUS.ANALYZING
+  );
+
+  const jd = isJDLink
+    ? await extractJD(event, {
+        url: jd_data,
+      })
+    : await analyseIfTextStructureIsAJD(jd_data);
 
   await redisClient.set(redisKey, JDMATCH_STATUS.GENERATING);
 
@@ -25,19 +34,7 @@ export default defineEventHandler(async (event) => {
     candidateResumePath,
   });
 
-  const res = await supabase.from("jd_match_dtl").insert([
-    {
-      file_id: fileId,
-      jd,
-      ...data,
-    },
-  ]);
-
-  if (res.error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to insert data into Supabase",
-    });
+  await saveJDMatchInfo({ jd, file_id: fileId, ...data });
 
   await redisClient.set(redisKey, JDMATCH_STATUS.MATCHED);
 
