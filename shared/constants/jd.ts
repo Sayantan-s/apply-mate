@@ -1,6 +1,8 @@
 export enum JDMATCH_STATUS {
+  IDLE = "IDLE",
   PARSING = "PARSING",
   EXTRACTING = "EXTRACTING",
+  ANALYZING = "ANALYZING",
   GENERATING = "GENERATING",
   MATCHED = "MATCHED",
   COMPLETED = "COMPLETED",
@@ -21,4 +23,6 @@ export enum JDMATCH_STATUS_TEXT {
   PROCESSING = "Processing",
   CANCELED = "Canceled",
   TIMEOUT = "Timeout",
+  ANALYZING = "Analyzing",
+  IDLE = "Idle",
 }
