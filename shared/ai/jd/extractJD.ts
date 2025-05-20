@@ -70,7 +70,8 @@ export default async function (
 
   await close();
 
-  if (message === "ERROR") throw new Error(data);
+  if (message === "ERROR")
+    throw createError({ statusCode: 400, message: data });
 
   return data;
 }
