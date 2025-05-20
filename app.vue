@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ZodError } from "zod";
 import useMutation from "./composables/hooks/useMutation";
 
 interface IJDInputForm {
@@ -27,22 +28,38 @@ const jdMatchInfo = useState<JDMatchInfoResponse | null>(
   () => null
 );
 
-const handleChange = (eve: Event) => {
-  const target = eve.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    form.value.file = target.files[0];
+const handleChange = async (file: File | null) => {
+  try {
+    console.log("File changed:", file, file instanceof File);
+    await jdDocSchema.parseAsync(file);
+    form.value.file = file;
+  } catch (err) {
+    if (err instanceof ZodError) {
+      console.error("Validation error:", err.errors);
+    } else {
+      console.error("Unexpected error:", err);
+    }
   }
 };
 
 const handleSubmit = async () => {
-  const formData = new FormData();
-  formData.append("url", form.value.jd);
-  formData.append("file", form.value.file as Blob);
-  const data = await jdMatch(formData);
-  if (!data) return;
-  fileId.value = data.fileId;
-  await checkJDMatchStatus();
-  await getJDMatchData();
+  try {
+    await jdFormSchema.parseAsync(form.value);
+    const formData = new FormData();
+    formData.append("url", form.value.jd);
+    formData.append("file", form.value.file as Blob);
+    const data = await jdMatch(formData);
+    if (!data) return;
+    fileId.value = data.fileId;
+    await checkJDMatchStatus();
+    await getJDMatchData();
+  } catch (err) {
+    if (err instanceof ZodError) {
+      console.error("Validation error:", err.errors);
+    } else {
+      console.error("Unexpected error:", err);
+    }
+  }
 };
 
 const checkJDMatchStatus = () =>
@@ -84,27 +101,77 @@ const getJDMatchData = async () => {
 </script>
 
 <template>
-  <form class="max-w-2xl mx-auto" @submit.prevent="handleSubmit">
-    <textarea
-      v-model.trim="form.jd"
-      type="text"
-      placeholder="eg. Paste your JD link or description here"
-      class="w-full h-32 border-2 border-gray-300 rounded-md p-2 mb-4"
-    />
-    <input type="file" @input="handleChange" />
-    <button
-      class="bg-purple-500 px-4 py-3 border border-black disabled:bg-red-400"
-      :disabled="loading"
-    >
-      {{ loading ? "Loading..." : "Proceed" }}
-    </button>
-  </form>
-  <div v-if="fileId">
-    <p>File ID: {{ fileId }}</p>
-    <p>Status: {{ status }}...</p>
-  </div>
+  <main class="flex items-center h-screen bg-amber-100">
+    <div class="w-full">
+      <form
+        class="max-w-[700px] mx-auto p-10 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+        @submit.prevent="handleSubmit"
+      >
+        <textarea
+          v-model.trim="form.jd"
+          type="text"
+          rows="20"
+          placeholder="eg. Paste your JD link or description here"
+          class="w-full border-2 border-black p-4 mb-4 resize-none outline-black"
+          :disabled="loading"
+        />
+        <FileInput
+          input-parent-class-name="flex justify-between"
+          :file="form.file"
+          accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword"
+          @change="handleChange"
+        >
+          <template #default="{ trigger }">
+            <div
+              role="button"
+              class="bg-black w-max px-4 py-3 border-2 border-black flex-1"
+              @click="trigger"
+            >
+              <p class="text-purple-400">
+                {{ form.file?.name || "Browse Files" }}
+              </p>
+              <p class="text-xs text-gray-100">
+                <span class="text-gray-500">PDF, DOC, DOCX.</span> File size max
+                3mb
+              </p>
+            </div>
+            <button
+              class="bg-purple-500 border-2 px-8 py-2 border-black disabled:bg-red-400 aspect-video text-shadow-md"
+              :disabled="loading"
+            >
+              <!-- <Loading /> -->
+              {{ loading ? "Loading..." : "Proceed" }}
+            </button>
+          </template>
+        </FileInput>
+      </form>
 
-  <div v-if="jdMatchInfo">
-    {{ JSON.stringify(jdMatchInfo) }}
-  </div>
+      <div
+        v-if="form.file"
+        class="max-w-[700px] mt-10 mx-auto p-10 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+      >
+        <p>File: {{ form.file.name }}</p>
+        <p>Status: {{ status }}...</p>
+      </div>
+
+      <div v-if="fileId">
+        <p>File ID: {{ fileId }}</p>
+        <p>Status: {{ status }}...</p>
+      </div>
+
+      <div v-if="jdMatchInfo">
+        {{ JSON.stringify(jdMatchInfo) }}
+      </div>
+    </div>
+  </main>
 </template>
+
+<style>
+:root {
+  --display: "Space Grotesk";
+}
+
+* {
+  font-family: var(--display);
+}
+</style>
