@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils",
     "@nuxtjs/tailwindcss",
     "reka-ui/nuxt",
+    "@nuxtjs/google-fonts",
   ],
   nitro: {
     storage: {
@@ -40,5 +42,10 @@ export default defineNuxtConfig({
   },
   imports: {
     dirs: ["shared/**"],
+  },
+  googleFonts: {
+    families: {
+      "Space Grotesk": true,
+    },
   },
 });
