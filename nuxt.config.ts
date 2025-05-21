@@ -20,6 +20,11 @@ export default defineNuxtConfig({
     "reka-ui/nuxt",
     "@nuxtjs/google-fonts",
   ],
+  icon: {
+    serverBundle: {
+      collections: ["uil"], // <!--- this
+    },
+  },
   nitro: {
     storage: {
       uploads: {

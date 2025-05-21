@@ -8,7 +8,7 @@ const allowedTypes = [
 
 export const jdDocSchema = import.meta.client
   ? z
-      .instanceof(File)
+      .instanceof(File, { message: "Please add your resume!" })
       .refine((file) => file.size > 0, { message: "File is required" })
       .refine((file) => file.size <= 3 * 1024 * 1024, {
         message: "Max file size is 3MB",

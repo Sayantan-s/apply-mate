@@ -1,61 +1,59 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-    <rect
-      fill="#FF156D"
-      stroke="#FF156D"
-      stroke-width="15"
-      width="30"
-      height="30"
-      x="25"
-      y="85"
-    >
-      <animate
-        attributeName="opacity"
-        calcMode="spline"
-        dur="2"
-        values="1;0;1;"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        begin="-.4"
-      ></animate>
-    </rect>
-    <rect
-      fill="#FF156D"
-      stroke="#FF156D"
-      stroke-width="15"
-      width="30"
-      height="30"
-      x="85"
-      y="85"
-    >
-      <animate
-        attributeName="opacity"
-        calcMode="spline"
-        dur="2"
-        values="1;0;1;"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        begin="-.2"
-      ></animate>
-    </rect>
-    <rect
-      fill="#FF156D"
-      stroke="#FF156D"
-      stroke-width="15"
-      width="30"
-      height="30"
-      x="145"
-      y="85"
-    >
-      <animate
-        attributeName="opacity"
-        calcMode="spline"
-        dur="2"
-        values="1;0;1;"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        begin="0"
-      ></animate>
-    </rect>
-  </svg>
+  <div class="container">
+    <div class="bar" />
+    <div class="bar" />
+    <div class="bar" />
+    <div class="bar" />
+  </div>
 </template>
+
+<style>
+.container {
+  --uib-size: 25px;
+  --uib-color: black;
+  --uib-speed: 1s;
+  --uib-stroke: 3.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--uib-size);
+  height: calc(var(--uib-size) * 0.9);
+}
+
+.bar {
+  width: var(--uib-stroke);
+  height: 100%;
+  background-color: var(--uib-color);
+  transition: background-color 0.3s ease;
+}
+
+.bar:nth-child(1) {
+  animation: grow var(--uib-speed) ease-in-out calc(var(--uib-speed) * -0.45)
+    infinite;
+}
+
+.bar:nth-child(2) {
+  animation: grow var(--uib-speed) ease-in-out calc(var(--uib-speed) * -0.3)
+    infinite;
+}
+
+.bar:nth-child(3) {
+  animation: grow var(--uib-speed) ease-in-out calc(var(--uib-speed) * -0.15)
+    infinite;
+}
+
+.bar:nth-child(4) {
+  animation: grow var(--uib-speed) ease-in-out infinite;
+}
+
+@keyframes grow {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+</style>

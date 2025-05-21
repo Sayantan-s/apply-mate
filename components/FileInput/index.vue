@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from "vue";
-
 interface IProps {
   file: File | null;
   inputParentClassName: string;

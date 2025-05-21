@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ZodError } from "zod";
 import useMutation from "./composables/hooks/useMutation";
+import type { IToastProps } from "./components/Toast/index.vue";
 
 interface IJDInputForm {
   jd: string;
@@ -27,10 +28,34 @@ const jdMatchInfo = useState<JDMatchInfoResponse | null>(
   "jdMatchInfo",
   () => null
 );
+const toast = useState<IToastProps>("open", () => ({
+  open: false,
+  variant: "info",
+  title: "",
+  description: "",
+}));
+
+const dispatchToast = (
+  variant: IToastProps["variant"],
+  title: string,
+  description: string
+) => {
+  toast.value.open = true;
+  toast.value.variant = variant;
+  toast.value.title = title;
+  toast.value.description = description;
+  setTimeout(removeToast, 3000);
+};
+
+const removeToast = () => {
+  toast.value.open = false;
+  toast.value.variant = "info";
+  toast.value.title = "";
+  toast.value.description = "";
+};
 
 const handleChange = async (file: File | null) => {
   try {
-    console.log("File changed:", file, file instanceof File);
     await jdDocSchema.parseAsync(file);
     form.value.file = file;
   } catch (err) {
@@ -55,9 +80,25 @@ const handleSubmit = async () => {
     await getJDMatchData();
   } catch (err) {
     if (err instanceof ZodError) {
-      console.error("Validation error:", err.errors);
+      dispatchToast(
+        "error",
+        "Incorrect Input",
+        err.errors.map((e) => e.message).join(", ")
+      );
     } else {
-      console.error("Unexpected error:", err);
+      if (err === "jd_match_status") {
+        dispatchToast(
+          "error",
+          "JD Match Status Error",
+          "Error checking JD match status"
+        );
+      } else {
+        dispatchToast(
+          "error",
+          "Unexpected Error",
+          "An unexpected error occurred"
+        );
+      }
     }
   }
 };
@@ -82,7 +123,7 @@ const checkJDMatchStatus = () =>
       } catch (error) {
         console.error("Error checking status:", error);
         clearInterval(interval);
-        reject();
+        reject("jd_match_status");
       }
     }, 1500);
   });
@@ -98,72 +139,89 @@ const getJDMatchData = async () => {
     console.error("Error fetching JD match data:", error);
   }
 };
+
+const baseFileInputStyles = computed(() => [
+  "bg-black w-max px-4 py-3 border-2 border-black flex-1 flex flex-col justify-center",
+  loading || fileId.value ? "hidden" : "",
+]);
+
+const baseButtonStyles = computed(() => [
+  "bg-purple-500 border-2 justify-center px-8 py-2 border-black aspect-video text-shadow-md gap-2 flex items-center h-20",
+  loading || fileId.value ? "flex-1" : "",
+]);
 </script>
 
 <template>
-  <main class="flex items-center h-screen bg-amber-100">
-    <div class="w-full">
-      <form
-        class="max-w-[700px] mx-auto p-10 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-        @submit.prevent="handleSubmit"
-      >
-        <textarea
-          v-model.trim="form.jd"
-          type="text"
-          rows="20"
-          placeholder="eg. Paste your JD link or description here"
-          class="w-full border-2 border-black p-4 mb-4 resize-none outline-black"
-          :disabled="loading"
-        />
-        <FileInput
-          input-parent-class-name="flex justify-between"
-          :file="form.file"
-          accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword"
-          @change="handleChange"
+  <ToastProvider>
+    <main class="flex items-center h-screen bg-amber-100">
+      <div class="w-full">
+        <form
+          class="max-w-[700px] mx-auto p-10 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          @submit.prevent="handleSubmit"
         >
-          <template #default="{ trigger }">
-            <div
-              role="button"
-              class="bg-black w-max px-4 py-3 border-2 border-black flex-1"
-              @click="trigger"
-            >
-              <p class="text-purple-400">
-                {{ form.file?.name || "Browse Files" }}
-              </p>
-              <p class="text-xs text-gray-100">
-                <span class="text-gray-500">PDF, DOC, DOCX.</span> File size max
-                3mb
-              </p>
-            </div>
-            <button
-              class="bg-purple-500 border-2 px-8 py-2 border-black disabled:bg-red-400 aspect-video text-shadow-md"
-              :disabled="loading"
-            >
-              <!-- <Loading /> -->
-              {{ loading ? "Loading..." : "Proceed" }}
-            </button>
-          </template>
-        </FileInput>
-      </form>
+          <textarea
+            v-model.trim="form.jd"
+            type="text"
+            rows="20"
+            placeholder="eg. Paste your JD link or description here"
+            class="w-full border-2 border-black p-4 mb-4 resize-none outline-black"
+            :disabled="loading"
+          />
+          <FileInput
+            input-parent-class-name="flex justify-between"
+            :file="form.file"
+            accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword"
+            @change="handleChange"
+          >
+            <template #default="{ trigger }">
+              <div role="button" :class="baseFileInputStyles" @click="trigger">
+                <p class="text-purple-400">
+                  {{ form.file?.name || "Browse Files" }}
+                </p>
+                <p v-if="form.file" class="text-xs text-gray-100">
+                  <span class="text-gray-500">File size:</span>
+                  {{ (form.file.size / 1024 / 1024).toFixed(2) }} MB
+                </p>
+                <p v-else class="text-xs text-gray-100">
+                  <span class="text-gray-500">PDF, DOC, DOCX.</span> File size
+                  max 3mb
+                </p>
+              </div>
+              <button
+                :class="baseButtonStyles"
+                :disabled="
+                  loading || (!!fileId && status !== JDMATCH_STATUS.MATCHED)
+                "
+              >
+                <Loading
+                  v-if="
+                    loading || (fileId && status !== JDMATCH_STATUS.MATCHED)
+                  "
+                />
+                {{
+                  loading
+                    ? "Processing"
+                    : fileId && status !== JDMATCH_STATUS.MATCHED
+                    ? JDMATCH_STATUS_TEXT[status]
+                    : "Proceed"
+                }}
+              </button>
+            </template>
+          </FileInput>
+        </form>
 
-      <div
-        v-if="form.file"
-        class="max-w-[700px] mt-10 mx-auto p-10 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-      >
-        <p>File: {{ form.file.name }}</p>
-        <p>Status: {{ status }}...</p>
+        <div v-if="jdMatchInfo">
+          {{ JSON.stringify(jdMatchInfo) }}
+        </div>
       </div>
-
-      <div v-if="fileId">
-        <p>File ID: {{ fileId }}</p>
-        <p>Status: {{ status }}...</p>
-      </div>
-
-      <div v-if="jdMatchInfo">
-        {{ JSON.stringify(jdMatchInfo) }}
-      </div>
-    </div>
-  </main>
+    </main>
+    <Toast
+      :open="toast.open"
+      :description="toast.description"
+      :title="toast.title"
+      :variant="toast.variant"
+    />
+  </ToastProvider>
 </template>
 
 <style>
