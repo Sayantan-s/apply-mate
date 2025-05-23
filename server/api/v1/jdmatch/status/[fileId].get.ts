@@ -1,9 +1,21 @@
+interface StatusResponse {
+  status: JDMATCH_STATUS;
+  data: {
+    jd?: string;
+    score?: number;
+    missing_skills?: string[];
+    matching_skills?: string[];
+    explanation?: string;
+  };
+}
+
 export default defineEventHandler(async (event) => {
   const fileId = getRouterParam(event, "fileId");
-  const redisKey = `file:${fileId}`;
-  const value = await redisClient.get(redisKey);
+  if (!fileId)
+    throw createError({ statusCode: 404, statusMessage: "File not found!" });
+  const value = await store.get<StatusResponse>(fileId);
   if (!value)
     throw createError({ statusCode: 404, statusMessage: "File not found!" });
-  if (value === JDMATCH_STATUS.MATCHED) await redisClient.del(redisKey);
-  return { status: value };
+  if (value.status === JDMATCH_STATUS.MATCHED) await store.del(fileId);
+  return value;
 });

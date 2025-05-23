@@ -1,6 +1,7 @@
 import analyseIfTextStructureIsAJD from "~/shared/ai/jd/analyseIfTextStructureIsAJD";
 import isJdLinkOrDescription from "~/shared/ai/jd/isJdLinkOrDescription";
 import { JDMATCH_STATUS } from "~/shared/constants/jd";
+import { store } from "~/shared/utils/cache";
 
 export default defineEventHandler(async (event) => {
   const info = await readBody<
@@ -9,17 +10,17 @@ export default defineEventHandler(async (event) => {
 
   const storage = useStorage("uploads");
 
-  const { candidateResumePath, JD_URL: jd_data, fileName } = info;
+  const { candidateResumePath, JD_INFO: jd_data, fileName } = info;
 
   const [fileId] = fileName.split("-");
-  const redisKey = `file:${fileId}`;
 
   const isJDLink = isJdLinkOrDescription(jd_data);
 
-  await redisClient.set(
-    redisKey,
-    isJDLink ? JDMATCH_STATUS.EXTRACTING : JDMATCH_STATUS.ANALYZING
-  );
+  const status = isJDLink
+    ? JDMATCH_STATUS.EXTRACTING
+    : JDMATCH_STATUS.ANALYZING;
+
+  await store.set(fileId, { status });
 
   const jd = isJDLink
     ? await extractJD(event, {
@@ -27,7 +28,10 @@ export default defineEventHandler(async (event) => {
       })
     : await analyseIfTextStructureIsAJD(jd_data);
 
-  await redisClient.set(redisKey, JDMATCH_STATUS.GENERATING);
+  await store.set(fileId, {
+    status: JDMATCH_STATUS.GENERATING,
+    ...(isJDLink ? { data: { jd } } : {}),
+  });
 
   const data = await generateCandidateScore(event, {
     jd,
@@ -36,7 +40,10 @@ export default defineEventHandler(async (event) => {
 
   await saveJDMatchInfo({ jd, file_id: fileId, ...data });
 
-  await redisClient.set(redisKey, JDMATCH_STATUS.MATCHED);
+  await store.set(fileId, {
+    status: JDMATCH_STATUS.MATCHED,
+    data: { ...data, jd },
+  });
 
   await storage.removeItem(fileName);
 
