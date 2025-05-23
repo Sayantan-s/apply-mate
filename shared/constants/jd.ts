@@ -16,7 +16,7 @@ export enum JDMATCH_STATUS_TEXT {
   PARSING = "Parsing",
   EXTRACTING = "Extracting",
   GENERATING = "Generating",
-  MATCHED = "Matched",
+  MATCHED = "Match Complete",
   COMPLETED = "Completed",
   FAILED = "Failed",
   QUEUED = "Queued",

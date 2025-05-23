@@ -1,6 +1,7 @@
 interface JDMatchInfo extends IGenerateCandidateScoreData {
   file_id: string;
   jd: string;
+  file_name: string;
 }
 
 export default async function (info: JDMatchInfo) {
