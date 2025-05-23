@@ -7,25 +7,10 @@ const { data } = defineProps<IProps>();
 </script>
 
 <template>
-  <div class="border-b-2 border-black">
-    <div class="flex items-center border-2 border-black gap-4 mb-4">
-      <div
-        class="w-24 aspect-square bg-white border-r-2 border-black text-4xl flex items-center justify-center"
-      >
-        {{ data.score }} <sup class="text-xs text-gray-500">/ 100</sup>
-      </div>
-      <div>
-        <strong>Feedback</strong>
-        <p class="text-sm">
-          Your are highly recommended for this job! <br />
-          <span class="text-purple-700">X.pdf</span> is highly recommended!
-        </p>
-      </div>
-    </div>
-  </div>
+  <ResultRatingCard :resume-name="data.file_name" :score="data.score" />
 
   <div class="mt-4">
-    <h1 class="text-xl mb-2 text-right">Job Description</h1>
+    <ResultHeading text="Job Description" class="flex justify-end" />
     <textarea
       :value="data.jd"
       rows="10"
@@ -35,9 +20,9 @@ const { data } = defineProps<IProps>();
       readonly
     />
   </div>
-  <div class="space-y-4">
+  <div class="space-y-6">
     <div class="mt-4">
-      <h1 class="text-xl mb-2 flex items-center gap-2">Matching Skills</h1>
+      <ResultHeading text="Matching Skills" />
       <div class="flex gap-1 flex-wrap">
         <div
           v-for="(skill, index) in data.matching_skills"
@@ -49,8 +34,9 @@ const { data } = defineProps<IProps>();
         </div>
       </div>
     </div>
+    <hr class="border-t-2 border-black" />
     <div>
-      <h1 class="text-xl mb-2 flex items-center gap-2">Missing Skills</h1>
+      <ResultHeading text="Missing Skills" />
       <div class="flex gap-1 flex-wrap">
         <div
           v-for="(skill, index) in data.missing_skills"
@@ -62,8 +48,10 @@ const { data } = defineProps<IProps>();
         </div>
       </div>
     </div>
+    <hr class="border-t-2 border-black" />
+
     <div>
-      <h1 class="text-xl mb-2 flex items-center gap-2">Explanation</h1>
+      <ResultHeading text="Explanation" />
       <p>{{ data.explanation }}</p>
     </div>
   </div>

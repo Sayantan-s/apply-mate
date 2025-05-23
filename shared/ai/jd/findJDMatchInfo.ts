@@ -10,6 +10,7 @@ export interface JDMatchInfoResponse {
   missing_skills: string[];
   matching_skills: string[];
   explanation: string;
+  file_name: string;
 }
 
 export default async function (

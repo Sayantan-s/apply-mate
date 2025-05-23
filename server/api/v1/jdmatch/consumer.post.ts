@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const { candidateResumePath, JD_INFO: jd_data, fileName } = info;
 
-  const [fileId] = fileName.split("-");
+  const [fileId, inputFileName] = fileName.split("-");
 
   const isJDLink = isJdLinkOrDescription(jd_data);
 
@@ -38,7 +38,12 @@ export default defineEventHandler(async (event) => {
     candidateResumePath,
   });
 
-  await saveJDMatchInfo({ jd, file_id: fileId, ...data });
+  await saveJDMatchInfo({
+    jd,
+    file_id: fileId,
+    file_name: inputFileName,
+    ...data,
+  });
 
   await store.set(fileId, {
     status: JDMATCH_STATUS.MATCHED,

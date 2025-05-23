@@ -7,7 +7,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "File ID is required" });
   const data = await findJDMatchInfo({
     fileId: fileId,
-    select: "file_id, jd, score, missing_skills, matching_skills, explanation",
+    select:
+      "file_id, file_name, jd, score, missing_skills, matching_skills, explanation",
   });
   await store.del(fileId);
   return data;

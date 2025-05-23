@@ -11,32 +11,6 @@ interface IJDInputForm {
 interface IJDMatchStatusResponse {
   fileId: string;
 }
-
-const DUMMY = {
-  file_id: "478216fa707adf45c052f4e690ba025f",
-  jd: "Job description: Frontend Developer\n\nLocation: Yelahanka, Bangalore\n\nYou Will\n\nWe are seeking a passionate and detail-oriented Frontend Developer with 1–2 years of professional experience to join our growing tech team. You will be responsible for building and maintaining user-facing features, ensuring seamless performance, and delivering high-quality code. If you're eager to learn, grow, and contribute to exciting projects, we’d love to hear from you.\n\nTo Be Successful, You Will Be Expected To\n\n• Develop responsive, user-friendly web interfaces using modern frameworks ( React / Nextjs).\n• Collaborate with UX/UI designers and backend developers to implement high-quality web applications.\n• Optimize components for maximum performance across a vast array of web-capable devices and browsers.\n• Maintain code quality through unit testing, code reviews, and documentation.\n• Assist in troubleshooting and debugging issues, identifying root causes and proposing solutions.\n• Stay updated with the latest frontend technologies, trends, and best practices.\n\nYou must have any or a combination of any of the following skills:\n\n• 1–2 years of professional experience in frontend development.\n• Strong understanding of HTML5, CSS3, JavaScript (ES6+).\n• Experience with one or more modern frontend frameworks/libraries such as React, NextJS, Vue.js, or Angular.\n• Familiarity with version control systems, particularly Git.\n• Understanding of responsive design principles and cross-browser compatibility.\n• Basic knowledge of RESTful APIs, GraphQL APIs and integration techniques.\n• Knowledge of TypeScript\n• Experience with frontend build tools like Webpack, Vite, or Parcel.\n• Exposure to UI testing frameworks (e.g., Jest, Testing Library, Cypress).\n• Basic understanding of SEO, accessibility, and web performance principles.\n\nWhy Join Us?\n\n• Be part of India’s fast-growing EV revolution.\n• Work with a passionate team committed to sustainability and innovation.\n• Opportunity to shape the brand identity of a leading EV startup\n\nSkills: graphql,testing library,web,javascript (es6+),html5,angular,jest,parcel,vue.js,code,css3,react,git,restful apis,nextjs,typescript,frontend development,vite,cypress,webpack",
-  score: 88,
-  missing_skills: ["Angular", "Vue.js", "Cypress", "Accessibility"],
-  matching_skills: [
-    "React",
-    "Nextjs",
-    "HTML/CSS/SASS",
-    "JavaScript (ES6+)",
-    "TypeScript",
-    "Git (Github Actions)",
-    "REST/GraphQL/Ws",
-    "Webpack",
-    "Vite",
-    "Jest",
-    "Testing Library (RTL)",
-    "Web performance optimization",
-    "Responsive design",
-    "Frontend development",
-  ],
-  explanation:
-    "The candidate is a strong fit for the Frontend Developer role. With 2.5 years of experience, they slightly exceed the 1-2 year requirement but align well with the expected level. They demonstrate extensive experience with core required technologies like React, Next.js, TypeScript, JavaScript, HTML, CSS, Git, RESTful/GraphQL APIs, frontend build tools (Vite, Webpack), and testing frameworks (Jest, RTL). Their experience clearly shows capabilities in building responsive user interfaces, optimizing performance (Core Web Vitals, load time), collaborating, and maintaining code quality. While they don't list experience with Angular, Vue.js, or Cypress, the JD allows for a combination of skills, and their proficiency in the other required areas makes them a highly relevant candidate.",
-};
-
 const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
   "/api/v1/jdmatch",
   "POST"
@@ -48,7 +22,7 @@ const form = useState<IJDInputForm>("jdInputForm", () => ({
   file: null,
 }));
 
-const tab = useState("tab", () => "tab2");
+const tab = useState("tab", () => "tab1");
 
 const fileId = useState<string | null>("fileId", () => null);
 const status = useState<JDMATCH_STATUS>("status", () => JDMATCH_STATUS.IDLE);
@@ -173,25 +147,26 @@ const getJDMatchData = async () => {
   }
 };
 
-const handleChangeTabs = (value: string) => () => {
+const handleChangeTabs = (value: string) => {
+  console.log(value, jdMatchInfo.value);
   if (value === "tab2" && !jdMatchInfo.value.score) return;
   tab.value = value;
 };
 
 const baseFileInputStyles = computed(() => [
   "bg-black w-max px-4 py-3 border-2 border-black flex-1 flex flex-col justify-center",
-  loading || fileId.value ? "hidden" : "",
+  loading.value || fileId.value ? "hidden" : "",
 ]);
 
 const baseButtonStyles = computed(() => [
   "border-2 justify-center px-8 py-2 border-black aspect-video text-shadow-md gap-2 flex items-center h-20",
-  loading || fileId.value ? "flex-1" : "",
+  loading.value || fileId.value ? "flex-1" : "",
   status.value === JDMATCH_STATUS.MATCHED ? "bg-green-600" : "bg-purple-500",
 ]);
 
 const scoreTabStyles = computed(() => [
-  "flex-1 flex items-center gap-2 justify-center py-4 bg-black border-b-2 border-black aria-selected:bg-amber-100 aria-selected:text-black",
-  jdMatchInfo.value.score ? "text-white" : "text-white/40",
+  "flex-1 flex items-center gap-2 justify-center py-4 bg-black border-b-2 border-black aria-selected:bg-amber-100 aria-selected:text-black disabled:text-white/40 text-white",
+  // jdMatchInfo.value.score ? "text-white" : "text-white/40",
 ]);
 </script>
 
@@ -203,7 +178,7 @@ const scoreTabStyles = computed(() => [
       <div class="w-full flex flex-col">
         <TabsRoot
           :model-value="tab"
-          class="max-w-[800px] max-h-[700px] overflow-y-scroll mx-auto w-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          class="max-w-[800px] max-h-[710px] overflow-y-scroll mx-auto w-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
         >
           <TabsList class="flex">
             <TabsTrigger
@@ -215,9 +190,9 @@ const scoreTabStyles = computed(() => [
             </TabsTrigger>
             <TabsTrigger
               value="tab2"
-              :disabled="!!jdMatchInfo.score"
+              :disabled="!jdMatchInfo.score"
               :class="scoreTabStyles"
-              @click="handleChangeTabs('tab1')"
+              @click="handleChangeTabs('tab2')"
               >Score <Icon name="uil:chart-pie" class="size-6"
             /></TabsTrigger>
           </TabsList>
@@ -225,7 +200,7 @@ const scoreTabStyles = computed(() => [
             <form class="p-10 bg-amber-100" @submit.prevent="handleSubmit">
               <textarea
                 v-model.trim="form.jd"
-                rows="20"
+                rows="18"
                 placeholder="eg. Paste your JD link or description here"
                 class="w-full border-2 border-black p-4 mb-4 resize-none outline-black"
                 :disabled="loading"
@@ -244,7 +219,7 @@ const scoreTabStyles = computed(() => [
                     @click="trigger"
                   >
                     <p class="text-purple-400">
-                      {{ form.file?.name || "Browse Files" }}
+                      {{ form.file?.name || "Attach Resume" }}
                     </p>
                     <p v-if="form.file" class="text-xs text-gray-100">
                       <span class="text-gray-500">File size:</span>
@@ -280,14 +255,10 @@ const scoreTabStyles = computed(() => [
           </TabsContent>
           <TabsContent value="tab2"
             ><div class="p-10 bg-amber-100">
-              <Result :data="DUMMY" />
+              <Result :data="jdMatchInfo" />
             </div>
           </TabsContent>
         </TabsRoot>
-
-        <!-- <div v-if="jdMatchInfo">
-          {{ JSON.stringify(jdMatchInfo) }}
-        </div> -->
       </div>
     </main>
     <Toast
