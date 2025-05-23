@@ -9,16 +9,16 @@ export default function <TData = unknown, TError = unknown>(
 ): [
   (
     payload: RequestInit["body"] | Record<string, unknown>
-  ) => Promise<TData | null>,
+  ) => Promise<TData | null | undefined>,
   {
-    loading: boolean;
-    error: string | null;
-    data: TData;
+    loading: Ref<boolean, boolean>;
+    error: Ref<string | null, string | null>;
+    data: Ref<TData | null, TData | null>;
   }
 ] {
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const data = ref<TData | null>(null);
+  const loading = useState("loading", () => false);
+  const error = useState<string | null>("error", () => null);
+  const data = useState<TData | null>("data", () => null);
 
   const mutate = async (
     payload: RequestInit["body"] | Record<string, unknown>
@@ -27,10 +27,11 @@ export default function <TData = unknown, TError = unknown>(
     error.value = null;
 
     try {
-      data.value = await $fetch<TData>(url, {
+      const response = await $fetch<TData>(url, {
         method,
         body: payload,
       });
+      data.value = response as TData;
       return data.value;
     } catch (err) {
       const errorMessage = errorCallback?.(err as TError);
@@ -40,8 +41,5 @@ export default function <TData = unknown, TError = unknown>(
     }
   };
 
-  return [
-    mutate,
-    { loading: loading.value, error: error.value, data: data.value },
-  ];
+  return [mutate, { loading, error, data }];
 }
