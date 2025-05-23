@@ -35,12 +35,12 @@ export default async function (
     fileName
   );
 
-  const JD_URL = url.data.toString("utf-8");
+  const JD_INFO = url.data.toString("utf-8");
 
   return {
     info: {
       candidateResumePath,
-      JD_URL,
+      JD_INFO,
       fileName,
     },
   };

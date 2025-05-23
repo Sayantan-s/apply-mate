@@ -6,7 +6,12 @@ export interface IToastProps {
   description: string;
 }
 
+export interface IToastHandler {
+  (e: "close"): void;
+}
+
 const props = defineProps<IToastProps>();
+const emit = defineEmits<IToastHandler>();
 
 const styles = computed(() => {
   switch (props.variant) {
@@ -65,8 +70,8 @@ const baseIconStyles = computed(
       <div :class="[baseIconStyles, iconBg]">
         <Icon :name="icon" class="size-12 text-black" />
       </div>
-      <div class="p-2">
-        <div class="flex justify-between">
+      <div class="p-2 w-full">
+        <div class="flex w-full justify-between">
           <ToastTitle
             class="[grid-area:_title] mb-[5px] text-slate12 text-sm font-[700]"
           >
@@ -76,6 +81,7 @@ const baseIconStyles = computed(
             class="[grid-area:_action]"
             as-child
             alt-text="Goto schedule to undo"
+            @click="emit('close')"
           >
             <Icon name="uil:times" />
           </ToastClose>
