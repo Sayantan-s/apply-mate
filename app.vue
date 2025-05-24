@@ -15,10 +15,6 @@ const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
   "/api/v1/jdmatch",
   "POST"
 );
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 const form = useState<IJDInputForm>("jdInputForm", () => ({
   jd: "",
   file: null,
