@@ -28,12 +28,14 @@ const jdMatchInfo = useState<JDMatchInfoResponse>(
   "jdMatchInfo",
   () => ({} as JDMatchInfoResponse)
 );
+
 const toast = useState<IToastProps>("open", () => ({
   open: false,
   variant: "info",
   title: "",
   description: "",
 }));
+
 const timer = ref<NodeJS.Timeout | null>(null);
 
 const dispatchToast = (
