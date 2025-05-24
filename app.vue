@@ -84,17 +84,13 @@ const handleSubmit = async () => {
   } catch (err) {
     if (err instanceof ZodError) {
       dispatchToast(
-        "error",
+        "warning",
         "Incorrect Input",
         err.errors.map((e) => e.message).join(", ")
       );
     } else {
       if (err === "jd_match_status") {
-        dispatchToast(
-          "error",
-          "JD Match Status Error",
-          "Error checking JD match status"
-        );
+        dispatchToast("error", "JD Match Error", "Failed to generate JD match");
       } else {
         dispatchToast(
           "error",
@@ -103,6 +99,8 @@ const handleSubmit = async () => {
         );
       }
     }
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -123,10 +121,12 @@ const checkJDMatchStatus = () =>
           if (status.value === JDMATCH_STATUS.MATCHED) {
             clearInterval(interval);
             resolve();
+            dispatchToast("success", "Hurry!", "JD Match is complete");
           }
         }
       } catch (error) {
         console.error("Error checking status:", error);
+        status.value = JDMATCH_STATUS.FAILED;
         clearInterval(interval);
         reject("jd_match_status");
       }
@@ -145,10 +145,23 @@ const getJDMatchData = async () => {
   }
 };
 
+const handleReset = (eve: Event) => {
+  eve.preventDefault();
+  eve.stopPropagation();
+  fileId.value = null;
+  status.value = JDMATCH_STATUS.IDLE;
+  form.value.jd = "";
+  form.value.file = null;
+};
+
 const handleChangeTabs = (value: string) => {
-  if (value === "tab2" && !jdMatchInfo.value.score) return;
   tab.value = value;
 };
+
+const computedStatusValues = computed(() => ({
+  [JDMATCH_STATUS.MATCHED]: "bg-green-600",
+  [JDMATCH_STATUS.FAILED]: "bg-rose-600",
+}));
 
 const baseFileInputStyles = computed(() => [
   "bg-black w-max px-4 py-3 border-2 border-black flex-1 flex flex-col justify-center",
@@ -158,19 +171,27 @@ const baseFileInputStyles = computed(() => [
 const baseButtonStyles = computed(() => [
   "border-2 justify-center px-8 py-2 border-black aspect-video text-shadow-md gap-2 flex items-center h-20",
   loading.value || fileId.value ? "flex-1" : "",
-  status.value === JDMATCH_STATUS.MATCHED ? "bg-green-600" : "bg-purple-500",
+  computedStatusValues.value[
+    status.value as keyof typeof computedStatusValues.value
+  ] ?? "bg-purple-600",
 ]);
 
 const scoreTabStyles = computed(() => [
   "flex-1 flex items-center gap-2 justify-center py-4 bg-black border-b-2 border-black aria-selected:bg-amber-100 aria-selected:text-black disabled:text-white/40 text-white",
-  // jdMatchInfo.value.score ? "text-white" : "text-white/40",
 ]);
+
+const iconStyles = computed(() => ({
+  [JDMATCH_STATUS.FAILED]: "uil:annoyed",
+  [JDMATCH_STATUS.MATCHED]: "uil:check-circle",
+}));
+
+const icon = iconStyles.value[status.value as keyof typeof iconStyles.value];
 </script>
 
 <template>
   <ToastProvider>
     <main
-      class="flex items-center h-screen bg-white not-prose w-full items-center justify-center z-15 relative border-2 mb-5 min-h-[200px] border-border bg-[linear-gradient(to_right,#8080804D_1px,transparent_1px),linear-gradient(to_bottom,#80808090_1px,transparent_1px)] shadow-shadow [background-size:30px_30px] bg-secondary-background"
+      class="overflow-hidden flex items-center h-screen bg-white not-prose w-full items-center justify-center z-15 relative border-2 min-h-[200px] border-border bg-[linear-gradient(to_right,#8080804D_1px,transparent_1px),linear-gradient(to_bottom,#80808090_1px,transparent_1px)] shadow-shadow [background-size:30px_30px] bg-secondary-background"
     >
       <div class="w-full flex flex-col">
         <TabsRoot
@@ -187,7 +208,7 @@ const scoreTabStyles = computed(() => [
             </TabsTrigger>
             <TabsTrigger
               value="tab2"
-              :disabled="!jdMatchInfo.score"
+              :disabled="loading || !jdMatchInfo.score"
               :class="scoreTabStyles"
               @click="handleChangeTabs('tab2')"
               >Score <Icon name="uil:chart-pie" class="size-6"
@@ -199,8 +220,7 @@ const scoreTabStyles = computed(() => [
                 v-model.trim="form.jd"
                 rows="18"
                 placeholder="eg. Paste your JD link or description here"
-                class="w-full border-2 border-black p-4 mb-4 resize-none outline-black"
-                :disabled="loading"
+                class="w-full border-2 border-black p-4 mb-4 resize-none outline-black bg-white"
                 :readonly="status !== JDMATCH_STATUS.IDLE || loading"
               />
               <FileInput
@@ -230,14 +250,20 @@ const scoreTabStyles = computed(() => [
                   <button
                     :class="baseButtonStyles"
                     :disabled="
-                      loading || (!!fileId && status !== JDMATCH_STATUS.MATCHED)
+                      loading ||
+                      (!!fileId && status !== JDMATCH_STATUS.MATCHED) ||
+                      (!!fileId && status !== JDMATCH_STATUS.FAILED)
                     "
                   >
                     <Loading
                       v-if="
-                        loading || (fileId && status !== JDMATCH_STATUS.MATCHED)
+                        loading ||
+                        (!!fileId &&
+                          status !== JDMATCH_STATUS.MATCHED &&
+                          status !== JDMATCH_STATUS.FAILED)
                       "
                     />
+                    <Icon v-if="icon" :name="icon" class="size-7 text-black" />
                     {{
                       loading
                         ? "Processing"
@@ -246,14 +272,25 @@ const scoreTabStyles = computed(() => [
                         : "Proceed"
                     }}
                   </button>
+                  <button
+                    v-if="
+                      status === JDMATCH_STATUS.FAILED ||
+                      status === JDMATCH_STATUS.MATCHED
+                    "
+                    class="px-6 py-3 border-2 border-l-0 border-black min-w-xl bg-black text-white"
+                    @click="handleReset"
+                  >
+                    Reset
+                  </button>
                 </template>
               </FileInput>
             </form>
           </TabsContent>
-          <TabsContent value="tab2"
-            ><div class="p-10 bg-amber-100">
-              <Result :data="jdMatchInfo" />
-            </div>
+          <TabsContent value="tab2">
+            <Result
+              :data="jdMatchInfo"
+              :loading="loading || status !== JDMATCH_STATUS.MATCHED"
+            />
           </TabsContent>
         </TabsRoot>
       </div>

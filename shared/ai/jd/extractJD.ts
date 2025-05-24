@@ -54,7 +54,8 @@ export default async function (
   const CHROME_PATH = runtimeConfig.CHROME_PATH;
   const API_KEY = runtimeConfig.GEMINI_API_KEY;
 
-  const isLocal = import.meta.env.DEV;
+  const isLocal = process.env.NODE_ENV === "development";
+
   const chromeExecutablePath = isLocal
     ? CHROME_PATH
     : chromium.executablePath();
