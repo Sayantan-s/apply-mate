@@ -1,4 +1,5 @@
 import type { H3Event, EventHandlerRequest } from "h3";
+import { chromium } from "playwright";
 import { z } from "zod";
 import { LLM } from "~/shared/integrations/llm";
 
@@ -53,9 +54,15 @@ export default async function (
   const CHROME_PATH = runtimeConfig.CHROME_PATH;
   const API_KEY = runtimeConfig.GEMINI_API_KEY;
 
+  const isLocal = process.env.NODE_ENV === "development";
+
+  const chromeExecutablePath = isLocal
+    ? CHROME_PATH
+    : chromium.executablePath();
+
   const { page, close } = await browsingAgent({
     apiKey: API_KEY,
-    executablePath: CHROME_PATH,
+    executablePath: chromeExecutablePath,
     model: LLM.model.gemini.FLASH_V25,
   });
 

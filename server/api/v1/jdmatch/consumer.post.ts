@@ -12,47 +12,55 @@ export default defineEventHandler(async (event) => {
 
   const { candidateResumePath, JD_INFO: jd_data, fileName } = info;
 
-  const [fileId, inputFileName] = fileName.split("-");
+  const [fileId, ...remainingName] = fileName.split("-");
+  try {
+    const inputFileName = remainingName.join("-");
 
-  const isJDLink = isJdLinkOrDescription(jd_data);
+    const isJDLink = isJdLinkOrDescription(jd_data);
 
-  const status = isJDLink
-    ? JDMATCH_STATUS.EXTRACTING
-    : JDMATCH_STATUS.ANALYZING;
+    const status = isJDLink
+      ? JDMATCH_STATUS.EXTRACTING
+      : JDMATCH_STATUS.ANALYZING;
 
-  await store.set(fileId, { status });
+    await store.set(fileId, { status });
 
-  const jd = isJDLink
-    ? await extractJD(event, {
-        url: jd_data,
-      })
-    : await analyseIfTextStructureIsAJD(jd_data);
+    const jd = isJDLink
+      ? await extractJD(event, {
+          url: jd_data,
+        })
+      : await analyseIfTextStructureIsAJD(jd_data);
 
-  await store.set(fileId, {
-    status: JDMATCH_STATUS.GENERATING,
-    ...(isJDLink ? { data: { jd } } : {}),
-  });
+    await store.set(fileId, {
+      status: JDMATCH_STATUS.GENERATING,
+      ...(isJDLink ? { data: { jd } } : {}),
+    });
 
-  const data = await generateCandidateScore(event, {
-    jd,
-    candidateResumePath,
-  });
+    const data = await generateCandidateScore(event, {
+      jd,
+      candidateResumePath,
+    });
 
-  await saveJDMatchInfo({
-    jd,
-    file_id: fileId,
-    file_name: inputFileName,
-    ...data,
-  });
+    await saveJDMatchInfo({
+      jd,
+      file_id: fileId,
+      file_name: inputFileName,
+      ...data,
+    });
 
-  await store.set(fileId, {
-    status: JDMATCH_STATUS.MATCHED,
-    data: { ...data, jd },
-  });
+    await store.set(fileId, {
+      status: JDMATCH_STATUS.MATCHED,
+      data: { ...data, jd },
+    });
 
-  await storage.removeItem(fileName);
+    await storage.removeItem(fileName);
 
-  setResponseStatus(event, 200);
-
-  return { message: "SUCCESS" };
+    setResponseStatus(event, 200);
+  } catch (err) {
+    if (err instanceof Error) {
+      await store.set(fileId, {
+        status: JDMATCH_STATUS.FAILED,
+      });
+      throw createError(err);
+    }
+  }
 });
