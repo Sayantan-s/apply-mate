@@ -17,5 +17,10 @@ export default defineEventHandler(async (event) => {
   if (!value)
     throw createError({ statusCode: 404, statusMessage: "File not found!" });
   if (value.status === JDMATCH_STATUS.MATCHED) await store.del(fileId);
+  if (value.status === JDMATCH_STATUS.FAILED)
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Couldn't generate JD match score`,
+    });
   return value;
 });
