@@ -15,7 +15,10 @@ const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
   "/api/v1/jdmatch",
   "POST"
 );
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 const form = useState<IJDInputForm>("jdInputForm", () => ({
   jd: "",
   file: null,
@@ -147,7 +150,6 @@ const getJDMatchData = async () => {
 };
 
 const handleChangeTabs = (value: string) => {
-  console.log(value, jdMatchInfo.value);
   if (value === "tab2" && !jdMatchInfo.value.score) return;
   tab.value = value;
 };
