@@ -59,7 +59,11 @@ const ANALYSER_PROMPT = (jd: string) => `
         score: 82 (Rating out of "100" based on the case how much it matches)
         matching_skills: ["React", "Redux" ...] (add the similar skills you found on the resume as well as the jd, leave empty if not found any)
         missing_skills: ["Microfrontend", "PWA"] (add those skills which you think the candidate is missing and made him not to stand out, leave empty if not found any)
-        explanation: Candidate is a great match... (Give the reasons why is he rated according to the score i.e. if he is rated 40 why is he rated so poorly, if 72 why is he rated as good. Write the explanation as if you are telling the candidate. for example by taking his name)
+        explanation: 
+          (Keep it 2-3 liner and give the reasons why is he rated according to the score.i.e. if he is rated 40 why is he rated so poorly, if 72 why is he rated as good. Write the explanation as if you are telling the candidate.
+          For example::
+          Sayantan, you do have relevent skills but few skills like mostly the AWS stack is missing. I wont recommend you apply using this cv. Try a different one.
+        )
       }
 
     `;
