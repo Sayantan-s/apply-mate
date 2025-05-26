@@ -1,27 +1,20 @@
-FROM mcr.microsoft.com/playwright:v1.44.0 AS build
-
+FROM oven/bun:1 AS build
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json bun.lockb ./
 
-RUN npm install --ignore-scripts
+RUN bun install --ignore-scripts
 
 COPY . .
 
-RUN npm run build
+RUN bun --bun run build:prod & \
+    sleep 130 && \
+    pkill -f 'node .output/server/index.mjs' || true
 
-FROM mcr.microsoft.com/playwright:v1.44.0
+FROM oven/bun:1 AS production
 WORKDIR /app
 
-COPY --from=build /app/.output ./.output
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/.output /app
 
-RUN npm install --ignore-scripts
-
-EXPOSE 3000
-
-ENV NUXT_HOST=0.0.0.0
-ENV NUXT_PORT=3000
-
-CMD ["node", ".output/server/index.mjs"]
+EXPOSE 3000/tcp
+ENTRYPOINT [ "bun", "--bun", "run", "/app/server/index.mjs" ]

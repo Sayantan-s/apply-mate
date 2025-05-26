@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
+    "build:prod": "timeout 120s nuxi build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "dev:ngrok": "./start.sh"
+    "dev:ngrok": "./start.sh",
+    "prepare": "husky"
   },
   "dependencies": {
     "@browserbasehq/stagehand": "^2.2.1",
@@ -37,6 +39,8 @@
   },
   "devDependencies": {
     "@iconify-json/uil": "^1.2.3",
-    "@nuxtjs/tailwindcss": "^6.14.0"
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0"
   }
 }

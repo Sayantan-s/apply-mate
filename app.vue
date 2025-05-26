@@ -2,7 +2,7 @@
 
 <template>
   <ContextSonner>
-    <ContextDataProvider> <App /> </ContextDataProvider>
+    <ContextDataProvider><App /></ContextDataProvider>
   </ContextSonner>
 </template>
 
