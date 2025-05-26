@@ -1,0 +1,28 @@
+# docker-compose.yml
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: . # Use the Dockerfile in the current directory
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000 (adjust if your app uses a different port)
+    environment:
+      - GEMINI_API_KEY=AIzaSyA4qjKde5KndRZ0Sd81A8VIeWTkOYCFkEQ
+      - QSTASH_TOKEN=eyJVc2VySUQiOiJjOTUyZTIwMC1jZDZlLTQ5NmUtODM5OC1jNWM3OGVhNDY1M2EiLCJQYXNzd29yZCI6IjY1MzIxZTBhN2Y4NTQyMDQ4N2FlNGNmYjZmNDNmYWRiIn0=
+      - API_URL=https://ac61-43-224-130-139.ngrok-free.app/api/v1
+      - REDIS_URL=rediss://default:AVjWAAIjcDE3ZWUwYTg3NWFkZTY0MDBlYTE5Y2EzZTM3ZGM3YjNjN3AxMA@unbiased-elephant-22742.upstash.io:6379
+      - DB_URI=https://ftgbexfrrkwmxwxkozuk.supabase.co
+      - DB_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0Z2JleGZycmt3bXh3eGtvenVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0Nzc0OTYsImV4cCI6MjA2MzA1MzQ5Nn0.eImqVwzhRXcRDBve9SYR2RD5ILFgqKFIu3xnDmvUJbw
+    restart: unless-stopped
+    volumes: # Optional: For development, mount source code for hot reloading. Remove for production deployments.
+      - .:/app # Mounts your local project directory into the container's /app directory
+      - /app/node_modules # Anonymous volume to prevent local node_modules from overwriting container's
+      - /app/.output # Prevent local .output from overwriting container's (if applicable during dev)
+      - /app/.nuxt # Prevent local .nuxt from overwriting container's (if applicable during dev)
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

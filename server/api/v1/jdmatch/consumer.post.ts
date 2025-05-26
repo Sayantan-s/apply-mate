@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
       await store.set(fileId, {
         status: JDMATCH_STATUS.FAILED,
       });
+      console.log(err.message);
       throw createError(err);
     }
   }
