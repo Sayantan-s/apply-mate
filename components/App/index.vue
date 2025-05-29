@@ -48,15 +48,18 @@ const icon = iconStyles.value[status.value as keyof typeof iconStyles.value];
         class="flex-1 flex items-center gap-2 justify-center py-4 bg-black text-white border-b-2 border-black aria-selected:bg-amber-100 aria-selected:text-black"
         @click="handleChangeTabs(ETAB.TAB_1)"
       >
-        <Icon name="uil:process" class="size-6" /> Process
+        <Icon name="uil:process" class="size-6" />
+        Process
       </TabsTrigger>
       <TabsTrigger
         :value="ETAB.TAB_2"
         :disabled="loading || !jdMatchInfo.score"
         :class="scoreTabStyles"
         @click="handleChangeTabs(ETAB.TAB_2)"
-        >Score <Icon name="uil:chart-pie" class="size-6"
-      /></TabsTrigger>
+      >
+        Score
+        <Icon name="uil:chart-pie" class="size-6" />
+      </TabsTrigger>
     </TabsList>
     <TabsContent :value="ETAB.TAB_1">
       <form class="p-10 bg-amber-100" @submit.prevent="handleSubmit">
@@ -75,17 +78,23 @@ const icon = iconStyles.value[status.value as keyof typeof iconStyles.value];
         >
           <template #default="{ trigger }">
             <div role="button" :class="baseFileInputStyles" @click="trigger">
-              <p class="text-purple-400">
-                {{ form.file?.name || "Attach Resume" }}
-              </p>
-              <p v-if="form.file" class="text-xs text-gray-100">
-                <span class="text-gray-500">File size:</span>
-                {{ (form.file.size / 1024 / 1024).toFixed(2) }} MB
-              </p>
-              <p v-else class="text-xs text-gray-100">
-                <span class="text-gray-500">PDF, DOC, DOCX.</span> File size max
-                3mb
-              </p>
+              <div class="flex items-end">
+                <p class="text-purple-400">
+                  {{ form.file?.name || "Attach Resume" }}
+                </p>
+                <div class="w-[1px] h-[80%] mx-2 bg-gray-700" />
+                <LinkInput v-model:value="form.cvLink" />
+              </div>
+              <div class="mt-1">
+                <p v-if="form.file" class="text-xs text-gray-100">
+                  <span class="text-gray-500">File size:</span>
+                  {{ (form.file.size / 1024 / 1024).toFixed(2) }} MB
+                </p>
+                <p v-else class="text-xs text-gray-100">
+                  <span class="text-gray-500">PDF, DOC, DOCX.</span>
+                  File size max 3mb
+                </p>
+              </div>
             </div>
             <button
               :class="baseButtonStyles"
