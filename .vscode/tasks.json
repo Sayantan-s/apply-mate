@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "run ngrok.sh",
+      "type": "shell",
+      "command": "${workspaceFolder}/ngrok.sh",
+      "problemMatcher": []
+    }
+  ]
+}

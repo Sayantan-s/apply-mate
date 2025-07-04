@@ -2,7 +2,7 @@
 
 Built to reduce application fatigue and help you focus on roles where you’re genuinely a strong fit.
 
-> If you are running this project locally make sure you have `jq` & `ngrok` installed and running this command `bun dev:ngrok`. If it gives you permission denied error run this: `chmod +x start.sh` and try again.
+> If you are running this project locally make sure you have `jq` & `ngrok` installed and running this command `bun dev:ngrok`. If it gives you permission denied error run this: `chmod +x ngrok.sh` and try again.
 
 ### 🛠️ Languages and Tools
 
