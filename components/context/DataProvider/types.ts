@@ -1,6 +1,7 @@
 export interface IJDInputForm {
   jd: string;
   file: File | null;
+  cvLink: string;
 }
 
 export interface IJDMatchStatusResponse {

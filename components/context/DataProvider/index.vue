@@ -27,6 +27,7 @@ const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
 const form = useState<IJDInputForm>("jdInputForm", () => ({
   jd: "",
   file: null,
+  cvLink: "",
 }));
 
 const fileId = useState<string | null>("fileId", () => null);
