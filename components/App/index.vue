@@ -82,8 +82,6 @@ const icon = iconStyles.value[status.value as keyof typeof iconStyles.value];
                 <p class="text-purple-400">
                   {{ form.file?.name || "Attach Resume" }}
                 </p>
-                <div class="w-[1px] h-[80%] mx-2 bg-gray-700" />
-                <LinkInput v-model:value="form.cvLink" />
               </div>
               <div class="mt-1">
                 <p v-if="form.file" class="text-xs text-gray-100">

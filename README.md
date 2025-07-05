@@ -2,7 +2,11 @@
 
 Built to reduce application fatigue and help you focus on roles where you’re genuinely a strong fit.
 
-> If you are running this project locally make sure you have `jq` & `ngrok` installed and running this command `bun dev:ngrok`. If it gives you permission denied error run this: `chmod +x ngrok.sh` and try again.
+### 🛠️ Setup
+
+- Make sure you have `jq` & `ngrok` installed and run this command `bun ngrok`.
+- If it gives you permission denied error run this: `chmod +x ngrok.sh` and try the above again.
+- Then `docker-compose -p apply-mate up`
 
 ### 🛠️ Languages and Tools
 
@@ -13,5 +17,3 @@ Built to reduce application fatigue and help you focus on roles where you’re g
 &nbsp;<img src="https://cdn.svgporn.com/logos/playwright.svg" width="42">
 &nbsp;<img src="./public/gemini.svg" width="40">
 &nbsp;<img src="https://cdn.svgporn.com/logos/bun.svg" width="48">
-
-**☁️ Webhook Interception**: `ngrok config add-authtoken $YOUR_AUTHTOKEN`

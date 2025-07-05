@@ -22,5 +22,6 @@ sed -i '' "s|^API_URL=.*|API_URL=${NGROK_URL}/api/v1|" .env
 
 echo "✅ Updated API_URL to ${NGROK_URL}/api/v1"
 
+npx nuxt dev
 # Kill ngrok after Nuxt stops
 kill $NGROK_PID
