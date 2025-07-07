@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+import { LinkInput } from "#components";
 import { useDataHandler, useDataSource } from "../context/DataProvider/hook";
 import { ETAB } from "../context/DataProvider/types";
 
 const { handleChange, handleReset, handleSubmit, handleChangeTabs } =
   useDataHandler();
 
-const { tab, loading, jdMatchInfo, status, fileId, form } = useDataSource();
+const { tab, loading, jdMatchInfo, status, fileId, form, resumeLink } =
+  useDataSource();
 
 const computedStatusValues = computed(() => ({
   [JDMATCH_STATUS.MATCHED]: "bg-green-600",
@@ -69,68 +71,80 @@ const icon = iconStyles.value[status.value as keyof typeof iconStyles.value];
           placeholder="eg. Paste your JD link or Job Description here"
           class="w-full border-2 border-black p-4 mb-4 resize-none outline-black bg-white"
           :readonly="status !== JDMATCH_STATUS.IDLE || loading"
+          tabindex="1"
         />
-        <FileInput
-          input-parent-class-name="flex justify-between"
-          :file="form.file"
-          accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword"
-          @change="handleChange"
-        >
-          <template #default="{ trigger }">
-            <div role="button" :class="baseFileInputStyles" @click="trigger">
-              <div class="flex items-end">
-                <p class="text-purple-400">
-                  {{ form.file?.name || "Attach Resume" }}
-                </p>
-              </div>
-              <div class="mt-1">
-                <p v-if="form.file" class="text-xs text-gray-100">
-                  <span class="text-gray-500">File size:</span>
-                  {{ (form.file.size / 1024 / 1024).toFixed(2) }} MB
-                </p>
-                <p v-else class="text-xs text-gray-100">
-                  <span class="text-gray-500">PDF, DOC, DOCX.</span>
-                  File size max 3mb
+        <div class="flex justify-between">
+          <div role="button" :class="baseFileInputStyles">
+            <div class="flex items-end">
+              <p v-show="form.file?.name" class="text-purple-400">
+                {{ form.file?.name }}
+              </p>
+              <div v-show="!form.file?.name">
+                <p class="text-white flex items-center">
+                  <FileInput
+                    accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword"
+                    @change="handleChange"
+                  >
+                    <template #default="{ trigger }">
+                      <button class="text-purple-400" @click="trigger">
+                        Attatch Resume
+                      </button>
+                    </template>
+                  </FileInput>
+                  &nbsp;
+                  <span>or</span>
+                  &nbsp;
+                  <LinkInput v-model="resumeLink" />
                 </p>
               </div>
             </div>
-            <button
-              :class="baseButtonStyles"
-              :disabled="
-                loading ||
-                (!!fileId && status !== JDMATCH_STATUS.MATCHED) ||
-                (!!fileId && status !== JDMATCH_STATUS.FAILED)
-              "
-            >
-              <Loading
-                v-if="
-                  loading ||
-                  (!!fileId &&
-                    status !== JDMATCH_STATUS.MATCHED &&
-                    status !== JDMATCH_STATUS.FAILED)
-                "
-              />
-              <Icon v-if="icon" :name="icon" class="size-7 text-black" />
-              {{
-                loading
-                  ? "Processing"
-                  : fileId
-                  ? JDMATCH_STATUS_TEXT[status]
-                  : "Proceed"
-              }}
-            </button>
-            <button
+            <div class="mt-1">
+              <p v-if="form.file" class="text-xs text-gray-100">
+                <span class="text-gray-500">File size:</span>
+                {{ (form.file.size / 1024 / 1024).toFixed(2) }} MB
+              </p>
+              <p v-else class="text-xs text-gray-100">
+                <span class="text-gray-500">PDF, DOC, DOCX.</span>
+                File size max 3mb
+              </p>
+            </div>
+          </div>
+          <button
+            :class="baseButtonStyles"
+            :disabled="
+              loading ||
+              (!!fileId && status !== JDMATCH_STATUS.MATCHED) ||
+              (!!fileId && status !== JDMATCH_STATUS.FAILED)
+            "
+          >
+            <Loading
               v-if="
-                status === JDMATCH_STATUS.FAILED ||
-                status === JDMATCH_STATUS.MATCHED
+                loading ||
+                (!!fileId &&
+                  status !== JDMATCH_STATUS.MATCHED &&
+                  status !== JDMATCH_STATUS.FAILED)
               "
-              class="px-6 py-3 border-2 border-l-0 border-black min-w-xl bg-black text-white"
-              @click="handleReset"
-            >
-              Reset
-            </button>
-          </template>
-        </FileInput>
+            />
+            <Icon v-if="icon" :name="icon" class="size-7 text-black" />
+            {{
+              loading
+                ? "Processing"
+                : fileId
+                ? JDMATCH_STATUS_TEXT[status]
+                : "Proceed"
+            }}
+          </button>
+          <button
+            v-if="
+              status === JDMATCH_STATUS.FAILED ||
+              status === JDMATCH_STATUS.MATCHED
+            "
+            class="px-6 py-3 border-2 border-l-0 border-black min-w-xl bg-black text-white"
+            @click="handleReset"
+          >
+            Reset
+          </button>
+        </div>
       </form>
     </TabsContent>
     <TabsContent :value="ETAB.TAB_2">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface IProps {
   file: File | null;
-  inputParentClassName: string;
+  inputParentClassName?: string;
 }
 
 const props = defineProps<IProps>();

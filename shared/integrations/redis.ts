@@ -3,15 +3,15 @@ import Redis from "ioredis";
 export const redisClient = new Redis(process.env.REDIS_URL as string);
 
 redisClient.once("connect", () => {
-  console.log("Redis client connected...");
+  Logging.client.logger.info("Redis client connected...");
 });
 
 redisClient.once("ready", () => {
-  console.log("Redis client ready...");
+  Logging.client.logger.info("Redis client ready...");
 });
 
 redisClient.once("error", (err) => {
-  console.error("Redis client error:", err);
+  Logging.client.logger.info(`Redis client error: ${JSON.stringify(err)}`, err);
 });
 
 redisClient.ping();

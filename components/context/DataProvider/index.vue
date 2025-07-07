@@ -30,6 +30,8 @@ const form = useState<IJDInputForm>("jdInputForm", () => ({
   cvLink: "",
 }));
 
+const resumeLink = useState<string>("resumeLink", () => "");
+
 const fileId = useState<string | null>("fileId", () => null);
 const status = useState<JDMATCH_STATUS>("status", () => JDMATCH_STATUS.IDLE);
 const jdMatchInfo = useState<JDMatchInfoResponse>(
@@ -169,6 +171,7 @@ const data = {
   fileId,
   tab,
   status,
+  resumeLink,
 };
 
 provide(dataSourceInjectionKey, data);
