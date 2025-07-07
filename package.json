@@ -2,6 +2,13 @@
   "name": "nuxt-app",
   "private": true,
   "type": "module",
+  "engines": {
+    "bun": ">=1.1.0",
+    "node": "please-use-bun",
+    "npm": "please-use-bun",
+    "pnpm": "please-use-bun",
+    "yarn": "please-use-bun"
+  },
   "scripts": {
     "build": "nuxt build",
     "build:prod": "timeout 120s nuxi build",
