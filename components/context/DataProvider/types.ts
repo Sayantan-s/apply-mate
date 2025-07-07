@@ -1,6 +1,7 @@
 export interface IJDInputForm {
   jd: string;
   file: File | null;
+  cvLink: string;
 }
 
 export interface IJDMatchStatusResponse {
@@ -24,6 +25,7 @@ export interface DataSource {
   fileId: globalThis.Ref<string | null, string | null>;
   tab: globalThis.Ref<ETAB, ETAB>;
   status: globalThis.Ref<globalThis.JDMATCH_STATUS, globalThis.JDMATCH_STATUS>;
+  resumeLink: globalThis.Ref<string, string>;
 }
 
 export const dataHandlerInjectionKey: InjectionKey<DataHandlers> =

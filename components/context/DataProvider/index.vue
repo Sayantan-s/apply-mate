@@ -27,7 +27,10 @@ const [jdMatch, { loading }] = useMutation<IJDMatchStatusResponse>(
 const form = useState<IJDInputForm>("jdInputForm", () => ({
   jd: "",
   file: null,
+  cvLink: "",
 }));
+
+const resumeLink = useState<string>("resumeLink", () => "");
 
 const fileId = useState<string | null>("fileId", () => null);
 const status = useState<JDMATCH_STATUS>("status", () => JDMATCH_STATUS.IDLE);
@@ -168,6 +171,7 @@ const data = {
   fileId,
   tab,
   status,
+  resumeLink,
 };
 
 provide(dataSourceInjectionKey, data);
