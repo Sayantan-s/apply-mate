@@ -6,7 +6,7 @@
     @click.stop="handleFocus"
     @focus.stop
   >
-    <span class="text-gray-600 pointer-events-none text-sm">https://</span>
+    <span class="text-gray-600 pointer-events-none text-">https://</span>
     <input
       ref="inputRef"
       :value="value"
