@@ -1,20 +1,24 @@
-FROM oven/bun:1 AS build
+FROM node:20 AS build
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+# Install dependencies needed to build native addons
+RUN apt-get update && apt-get install -y python3 make build-essential
 
-RUN bun install --ignore-scripts
+COPY package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN bun --bun run build:prod & \
-    sleep 130 && \
-    pkill -f 'node .output/server/index.mjs' || true
+RUN yarn build
 
-FROM oven/bun:1 AS production
+FROM node:20-slim AS production
 WORKDIR /app
 
-COPY --from=build /app/.output /app
+COPY package.json yarn.lock ./
+RUN yarn install --production --frozen-lockfile
+
+COPY --from=build /app/.output ./.output
 
 EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "--bun", "run", "/app/server/index.mjs" ]
+ENTRYPOINT [ "node", ".output/server/index.mjs" ]

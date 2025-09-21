@@ -1,25 +1,10 @@
-# Nuxt dev/build outputs
-.output
-.data
-.nuxt
-.nitro
-.cache
-dist
-
-# Node dependencies
 node_modules
-
-# Logs
-logs
-*.log
-
-# Misc
+.output
+.nuxt
+dist
 .DS_Store
-.fleet
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode
 .idea
-
-# Local env files
-.env
-.env.*
-!.env.example
-chrome
