@@ -1,17 +1,41 @@
 import Redis from "ioredis";
+import { Logging } from "../utils/logging";
 
-export const redisClient = new Redis(process.env.REDIS_URL as string);
+let redisClient: Redis | null = null;
 
-redisClient.once("connect", () => {
-  Logging.client.logger.info("Redis client connected...");
-});
+export const getRedisClient = () => {
+  if (!redisClient) {
+    redisClient = new Redis(process.env.REDIS_URL as string);
 
-redisClient.once("ready", () => {
-  Logging.client.logger.info("Redis client ready...");
-});
+    redisClient.once("connect", () => {
+      Logging.client.logger.info("Redis client connected...");
+    });
 
-redisClient.once("error", (err) => {
-  Logging.client.logger.info(`Redis client error: ${JSON.stringify(err)}`, err);
-});
+    redisClient.once("ready", () => {
+      Logging.client.logger.info("Redis client ready...");
+    });
 
-redisClient.ping();
+    redisClient.once("error", (err) => {
+      Logging.client.logger.error(
+        `Redis client error: ${JSON.stringify(err)}`,
+        err
+      );
+    });
+
+    redisClient.ping().catch((err) => {
+      Logging.client.logger.error(
+        `Redis ping error: ${JSON.stringify(err)}`,
+        err
+      );
+    });
+  }
+  return redisClient;
+};
+
+export const disconnectRedis = () => {
+  if (redisClient) {
+    redisClient.disconnect();
+    redisClient = null;
+    Logging.client.logger.info("Redis client disconnected...");
+  }
+};

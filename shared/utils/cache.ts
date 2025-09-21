@@ -1,3 +1,5 @@
+import { getRedisClient } from "../integrations/redis";
+
 interface Cache {
   keyPrefix: string;
 }
@@ -5,6 +7,7 @@ interface Cache {
 function cache({ keyPrefix }: Cache) {
   return {
     set: async <T>(key: string, value: T) => {
+      const redisClient = getRedisClient();
       const { logger } = Logging.client;
       const redisKey = `${keyPrefix}:${key}`;
       logger.info(`caching -> ${key} > ${value}`);
@@ -13,6 +16,7 @@ function cache({ keyPrefix }: Cache) {
     },
 
     get: async <T>(key: string): Promise<T | null> => {
+      const redisClient = getRedisClient();
       const { logger } = Logging.client;
       const redisKey = `${keyPrefix}:${key}`;
       logger.info(`getting cache -> ${key}`);
@@ -23,6 +27,7 @@ function cache({ keyPrefix }: Cache) {
     },
 
     del: async (key: string) => {
+      const redisClient = getRedisClient();
       const { logger } = Logging.client;
       const redisKey = `${keyPrefix}:${key}`;
       logger.info(`removing cache -> ${key}`);
