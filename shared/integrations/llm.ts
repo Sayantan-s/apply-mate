@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 class Gemini {
   public static FLASH_V2 = "gemini-2.0-flash";
-  public static FLASH_V25 = "gemini-2.5-flash-preview-04-17";
+  public static FLASH_V25 = "gemini-2.5-flash";
 }
 
 class Model {

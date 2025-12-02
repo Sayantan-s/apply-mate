@@ -5,6 +5,8 @@ interface JDMatchInfo extends IGenerateCandidateScoreData {
 }
 
 export default async function (info: JDMatchInfo) {
+  const supabase = useSupabaseServer();
+
   const res = await supabase.from("jd_match_dtl").insert([info]);
 
   if (res.error)

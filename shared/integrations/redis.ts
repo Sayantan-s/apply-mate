@@ -5,7 +5,9 @@ let redisClient: Redis | null = null;
 
 export const getRedisClient = () => {
   if (!redisClient) {
-    redisClient = new Redis(process.env.REDIS_URL as string);
+    const config = useRuntimeConfig();
+
+    redisClient = new Redis(config.REDIS_URL as string);
 
     redisClient.once("connect", () => {
       Logging.client.logger.info("Redis client connected...");

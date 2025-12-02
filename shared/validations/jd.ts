@@ -18,28 +18,27 @@ export const jdDocSchema = import.meta.client
       })
   : z.any();
 
-export const jdFormSchema = z
-  .object({
-    file: jdDocSchema.optional(),
-    jd: z.string().min(20, { message: "JD is required" }),
-    cvLink: z.string().url({ message: "Valid CV link required" }).optional(),
-  })
-  .superRefine((data, ctx) => {
-    const jdIsPopulatedAndPotentiallyValid =
-      typeof data.jd === "string" && data.jd.length >= 20;
+export const jdFormSchema = z.object({
+  file: jdDocSchema.optional(),
+  jd: z.string().min(20, { message: "JD is required" }),
+  // cvLink: z.string().url({ message: "Valid CV link required" }).optional(),
+});
+// .superRefine((data, ctx) => {
+//   const jdIsPopulatedAndPotentiallyValid =
+//     typeof data.jd === "string" && data.jd.length >= 20;
 
-    if (jdIsPopulatedAndPotentiallyValid) {
-      const hasFile = !!data.file;
-      const hasCvLink =
-        typeof data.cvLink === "string" && data.cvLink.trim() !== "";
+//   if (jdIsPopulatedAndPotentiallyValid) {
+//     const hasFile = !!data.file;
+//     const hasCvLink =
+//       typeof data.cvLink === "string" && data.cvLink.trim() !== "";
 
-      if (!hasFile && !hasCvLink) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Either a Resume File or a CV Link must be provided with the Job Description.",
-          path: ["file"],
-        });
-      }
-    }
-  });
+//     if (!hasFile && !hasCvLink) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         message:
+//           "Either a Resume File or a CV Link must be provided with the Job Description.",
+//         path: ["file"],
+//       });
+//     }
+//   }
+// });

@@ -50,9 +50,13 @@ export default async function (
 ) {
   const { url } = config;
   const runtimeConfig = useRuntimeConfig(event);
+  const { logger } = Logging.client;
 
   const CHROME_PATH = runtimeConfig.CHROME_PATH;
   const API_KEY = runtimeConfig.GEMINI_API_KEY;
+
+  logger.info(`CHROME_PATH -> ${CHROME_PATH}`);
+  logger.info(`API_KEY -> ${API_KEY}`);
 
   const isLocal = process.env.NODE_ENV === "development";
 
@@ -67,13 +71,19 @@ export default async function (
   });
 
   await page.goto(url, { timeout: TIMEOUT });
+  logger.info(`naviagted to page -> ${url}`);
 
   await page.act({ action: ACTION_PROMPT });
+  logger.info(`acted on page -> ${url}`);
 
-  const { message, data } = await page.extract({
+  const { message, data } = await page.extract<typeof EXTRACTION_SCHEMA>({
     instruction: BROWSING_PROMPT,
     schema: EXTRACTION_SCHEMA,
+    modelName: LLM.model.gemini.FLASH_V25,
   });
+
+  logger.info(`message -> ${message}`);
+  logger.info(`data -> ${data}`);
 
   await close();
 

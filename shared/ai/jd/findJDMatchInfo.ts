@@ -16,6 +16,8 @@ export interface JDMatchInfoResponse {
 export default async function (
   info: JDMatchInfo
 ): Promise<JDMatchInfoResponse> {
+  const supabase = useSupabaseServer();
+
   let query = supabase.from("jd_match_dtl").select(info.select);
 
   if (info.fileId) query = query.eq("file_id", info.fileId);

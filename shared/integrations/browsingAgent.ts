@@ -20,7 +20,7 @@ export default async function ({
     },
     localBrowserLaunchOptions: {
       executablePath,
-      headless: false,
+      headless: true,
     },
   });
 
